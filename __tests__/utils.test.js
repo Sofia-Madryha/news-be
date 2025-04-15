@@ -2,7 +2,7 @@ const {
   convertTimestampToDate
 } = require("../db/seeds/utils");
 
-describe.skip("convertTimestampToDate", () => {
+describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
     const timestamp = 1557572706232;
     const input = { created_at: timestamp };
@@ -37,4 +37,5 @@ describe.skip("convertTimestampToDate", () => {
     expect(result).toEqual(expected);
   });
 });
+
 
