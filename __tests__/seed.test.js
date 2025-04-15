@@ -5,14 +5,14 @@ const data = require('../db/data/test-data/index');
 beforeAll(() => seed(data));
 afterAll(() => db.end());
 
-describe.skip('seed', () => {
+describe('seed', () => {
   describe('topics table', () => {
     test('topics table exists', () => {
       return db
         .query(
           `SELECT EXISTS (
             SELECT FROM 
-                information_schema.tables 
+                information_schema.tables xx
             WHERE 
                 table_name = 'topics'
             );`
