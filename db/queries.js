@@ -16,6 +16,24 @@ function getBelowZeroVotesComments() {
   );
 }
 
-getAllUsers();
-getCodingArticles();
-getBelowZeroVotesComments();
+function getAllTopics() {
+    return db.query(`SELECT * FROM topics;`).then((result) => console.log(result.rows)
+  );
+};
+
+function getArticlesByUser(user) {
+    return db.query(`SELECT * FROM articles WHERE author='${user}';`).then((result) => console.log(result.rows)
+  );
+};
+
+function getMoreThan10VotesComments() {
+    return db.query(`SELECT * FROM comments WHERE votes > 10;`).then((result) => console.log(result.rows)
+  );
+}
+
+// getAllUsers();
+// getCodingArticles();
+// getBelowZeroVotesComments();
+// getAllTopics();
+// getArticlesByUser('grumpy19');
+getMoreThan10VotesComments();
