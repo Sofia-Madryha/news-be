@@ -1,6 +1,6 @@
 const db = require("../connection");
 const format = require("pg-format");
-const { convertTimestampToDate } = require("./utils");
+const { convertTimestampToDate, createRefArticles } = require("./utils");
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
   return db
@@ -89,37 +89,18 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
 
       const insertArticlesData = format(
         `INSERT INTO articles(title, topic, author,body, created_at, votes, article_img_url ) 
-        VALUES %L`,
+        VALUES %L RETURNING *`,
         formattedArticlesData
       );
 
       return db.query(insertArticlesData);
     })
-    .then(() => {
-      const findIds = commentData.map((comment) => {
-        const queryStr = format(
-          "SELECT article_id, title FROM articles WHERE title = %L;",
-          comment.article_title
-        );
-
-        return db.query(queryStr).then((res) => {
-          return res.rows[0];
-        });
-      });
-
-      return Promise.all(findIds);
-    })
     .then((articlesInfo) => {
-      const commentsWithArticleId = commentData.map((comment) => {
-        const matchedArticle = articlesInfo.find(
-          (article) => comment.article_title === article.title
-        );
-        return { ...comment, articleId: matchedArticle.article_id };
-      });
-
-      const formattedCommentsData = commentsWithArticleId.map((comment) => {
+      const createdRefArticles = createRefArticles(articlesInfo.rows);
+            
+      const formattedCommentsData = commentData.map((comment) => {
         return [
-          comment.articleId,
+          createdRefArticles[comment.article_title],
           comment.body,
           comment.votes,
           comment.author,
