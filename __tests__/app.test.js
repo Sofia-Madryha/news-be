@@ -75,7 +75,7 @@ describe("GET article by id", () => {
     return request(app)
       .get("/api/articles/notNumber")
       .expect(400)
-      .then(({ body: { msg } }) => {        
+      .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad request");
       });
   });
@@ -85,6 +85,31 @@ describe("GET article by id", () => {
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("article id is not found");
+      });
+  });
+});
+
+describe("GET /api/articles", () => {
+  test("200: responds with array of article objects, each of which should have the corrects properties sorted by date in desc", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+        expect(articles.length).toBe(13);
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            topic: expect.any(String),
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+          expect(articles[0].created_at).toBe("2020-11-03T07:12:00.000Z");
       });
   });
 });
