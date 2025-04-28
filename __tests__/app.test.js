@@ -50,3 +50,41 @@ describe("GET /api/topics", () => {
       });
   });
 });
+
+describe("GET article by id", () => {
+  test("200: responds with object corresponding by article_id and with corect properties", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toEqual({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T18:11:00.000Z",
+          votes: 100,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+
+  test("400: Bad request when passed an invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/notNumber")
+      .expect(400)
+      .then(({ body: { msg } }) => {        
+        expect(msg).toBe("Bad request");
+      });
+  });
+  test("404: article_id does not exist", () => {
+    return request(app)
+      .get("/api/articles/1000")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("article id is not found");
+      });
+  });
+});
