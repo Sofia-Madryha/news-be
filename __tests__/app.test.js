@@ -5,7 +5,6 @@ const data = require("../db/data/test-data/index");
 const db = require("../db/connection");
 const app = require("../app");
 const seed = require("../db/seeds/seed.js");
-const { convertTimestampToDate } = require("../db/seeds/utils.js");
 
 beforeEach(() => seed(data));
 
