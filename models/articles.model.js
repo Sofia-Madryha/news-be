@@ -42,7 +42,9 @@ exports.selectCommentsByArticleId = (articleId) => {
 };
 
 exports.insertCommentForArticle = (articleId, commentBody) => {
+  const { username, body } = commentBody;
   const requiredKeys = ["username", "body"];
+
   const missingKeys = requiredKeys.filter(
     (key) => !commentBody.hasOwnProperty(key)
   );
@@ -57,7 +59,7 @@ exports.insertCommentForArticle = (articleId, commentBody) => {
   return db
     .query(
       `INSERT INTO comments(article_id, author, body) VALUES ($1, $2, $3) RETURNING *`,
-      [articleId, commentBody.username, commentBody.body]
+      [articleId, username, body]
     )
     .then(({ rows }) => {
       return rows[0];
@@ -74,6 +76,41 @@ exports.selectUserByUsername = (username) => {
           msg: "user is not found",
         });
       }
+      return result.rows[0];
+    });
+};
+
+exports.updateArticleById = (articleId, articleBody) => {
+  const regex = /^-?\d+$/;
+
+  const { inc_votes } = articleBody;
+
+  const requiredKeys = ["inc_votes"];
+
+  const missingKeys = requiredKeys.filter(
+    (key) => !articleBody.hasOwnProperty(key)
+  );
+
+  if (missingKeys.length > 0) {
+    return Promise.reject({
+      status: 400,
+      msg: `Missing key '${missingKeys[0]}'`,
+    });
+  }
+
+  if (!regex.test(inc_votes)) {
+    return Promise.reject({
+      status: 400,
+      msg: "inc_votes should be a number",
+    });
+  }
+
+  return db
+    .query(
+      `UPDATE articles SET votes = votes + ${inc_votes} WHERE article_id = $1 RETURNING *`,
+      [articleId]
+    )
+    .then((result) => {
       return result.rows[0];
     });
 };
