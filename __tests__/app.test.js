@@ -117,7 +117,7 @@ describe("GET /api/articles", () => {
 });
 
 describe("GET comments by article id", () => {
-  test("200: responds with object array of comments objects for the given article_id, each of which should have the corrects properties", () => {
+  test("200: responds with array of comments objects for the given article_id, each of which should have the corrects properties", () => {
     return request(app)
       .get("/api/articles/1/comments")
       .expect(200)
@@ -137,6 +137,14 @@ describe("GET comments by article id", () => {
         expect(comments).toBeSortedBy("created_at", {
           descending: true,
         });
+      });
+  });
+   test("200: responds with empty array of comments when articles have no associated comments", () => {
+    return request(app)
+      .get("/api/articles/4/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {  
+        expect(comments).toEqual([]);
       });
   });
   test("400: Bad request when passed an invalid article_id", () => {
