@@ -2,7 +2,7 @@ const express = require("express");
 
 const { getApi } = require("./controllers/api.controller");
 const { getTopics } = require("./controllers/topics.controller");
-const { getArticleById, getArticles, getCommentsByArticleId, postCommentForArticle, patchArticle } = require("./controllers/articles.controller");
+const { getArticleById, getArticles, getCommentsByArticleId, postCommentForArticle, patchArticle, deleteComment } = require("./controllers/articles.controller");
 
 const app = express();
 
@@ -21,6 +21,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentForArticle);
 
 app.patch("/api/articles/:article_id", patchArticle);
+
+app.delete("/api/comments/:comment_id", deleteComment)
 
 app.all('/*splat', (req, res) => {
   res.status(404).send({ msg: "Invalid url!" });
