@@ -109,7 +109,50 @@ describe("GET /api/articles", () => {
             comment_count: expect.any(Number),
           });
         });
-          expect(articles[0].created_at).toBe("2020-11-03T07:12:00.000Z");
+        expect(articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
+  });
+});
+
+describe("GET comments by article id", () => {
+  test("200: responds with object array of comments objects for the given article_id, each of which should have the corrects properties", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(Array.isArray(comments)).toBe(true);
+        expect(comments.length).toBe(11);
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            body: expect.any(String),
+            article_id: 1,
+          });
+        });
+        expect(comments).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
+  });
+  test("400: Bad request when passed an invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/notNumber/comments")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  test("404: article_id does not exist", () => {
+    return request(app)
+      .get("/api/articles/1000/comments")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("article id is not found");
       });
   });
 });
