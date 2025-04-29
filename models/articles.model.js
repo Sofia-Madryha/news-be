@@ -114,3 +114,21 @@ exports.updateArticleById = (articleId, articleBody) => {
       return result.rows[0];
     });
 };
+
+exports.selectCommentById = (commentId) => {
+  return db
+    .query(`SELECT * FROM comments WHERE comment_id = $1`, [commentId])
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "comment id is not found",
+        });
+      }
+      return result.rows[0];
+    });
+};
+
+exports.deleteCommentById = (commentId) => {
+  return db.query(`DELETE FROM comments WHERE comment_id = $1`, [commentId]);
+};

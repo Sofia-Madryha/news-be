@@ -303,7 +303,7 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(msg).toBe("inc_votes should be a number");
       });
   });
-    test("400: Bad request when isn't passed property", () => {
+  test("400: Bad request when isn't passed property", () => {
     const changedArticle = {};
 
     return request(app)
@@ -336,6 +336,28 @@ describe("PATCH /api/articles/:article_id", () => {
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("article id is not found");
+      });
+  });
+});
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: responds with no content", () => {
+    return request(app).delete("/api/comments/3").expect(204);
+  });
+  test("400: Bad request when passed an invalid comment_id", () => {
+    return request(app)
+      .delete("/api/comments/notNumber")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  test("404: comment_id does not exist", () => {
+    return request(app)
+      .delete("/api/comments/1000")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("comment id is not found");
       });
   });
 });

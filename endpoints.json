@@ -89,5 +89,8 @@
         }
       ]
     }
+  },
+    "DELETE /api/comments/:comment_id": {
+    "description": "deletes comment by id"
   }
 }
