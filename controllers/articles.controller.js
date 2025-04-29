@@ -3,11 +3,11 @@ const {
   selectArticles,
   selectCommentsByArticleId,
   insertCommentForArticle,
-  selectUserByUsername,
   updateArticleById,
   selectCommentById,
   deleteCommentById,
 } = require("../models/articles.model");
+const { selectUserByUsername } = require("../models/users.model");
 
 exports.getArticleById = (req, res, next) => {
   const articleId = req.params.article_id;
