@@ -32,8 +32,48 @@ exports.selectArticles = () => {
 
 exports.selectCommentsByArticleId = (articleId) => {
   return db
-    .query(`SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`, [articleId])
+    .query(
+      `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`,
+      [articleId]
+    )
     .then((result) => {
       return result.rows;
+    });
+};
+
+exports.insertCommentForArticle = (articleId, commentBody) => {
+  const requiredKeys = ["username", "body"];
+  const missingKeys = requiredKeys.filter(
+    (key) => !commentBody.hasOwnProperty(key)
+  );
+
+  if (missingKeys.length > 0) {
+    return Promise.reject({
+      status: 400,
+      msg: `Missing key '${missingKeys[0]}'`,
+    });
+  }
+
+  return db
+    .query(
+      `INSERT INTO comments(article_id, author, body) VALUES ($1, $2, $3) RETURNING *`,
+      [articleId, commentBody.username, commentBody.body]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};
+
+exports.selectUserByUsername = (username) => {
+  return db
+    .query(`SELECT * FROM users WHERE username = $1`, [username])
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "user is not found",
+        });
+      }
+      return result.rows[0];
     });
 };
