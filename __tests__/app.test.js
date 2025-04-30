@@ -114,6 +114,44 @@ describe("GET /api/articles", () => {
         });
       });
   });
+  test("200: responds with array of article objects, each of which should have the corrects properties sorted by name in asc", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+        expect(articles.length).toBe(13);
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            topic: expect.any(String),
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+        expect(articles).toBeSortedBy("title");
+      });
+  });
+  test("400: Bad request when there is invalid query sort_by", () => {
+    return request(app)
+      .get("/api/articles?sort_by=name&order=asc")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid query for sorting");
+      });
+  });
+   test("400: Bad request when there is invalid query order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=1")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid query for order");
+      });
+  });
 });
 
 describe("GET comments by article id", () => {
