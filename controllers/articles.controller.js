@@ -7,6 +7,7 @@ const {
   selectCommentById,
   deleteCommentById,
 } = require("../models/articles.model");
+const { selectTopicBySlug } = require("../models/topics.model");
 const { selectUserByUsername } = require("../models/users.model");
 
 exports.getArticleById = (req, res, next) => {
@@ -20,11 +21,21 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by, order } = req.query;
+  const { sort_by, order, topic } = req.query;
 
-  return selectArticles(sort_by, order)
-    .then((articles) => {
-      res.status(200).send({ articles });
+  const promiseArr = [];
+
+  const fetchArticles = selectArticles(sort_by, order, topic);
+  promiseArr.push(fetchArticles);
+
+  if (topic) {
+    const checkTopic = selectTopicBySlug(topic);
+    promiseArr.push(checkTopic);
+  }
+
+  Promise.all(promiseArr)
+    .then((result) => {
+      res.status(200).send({ articles: result[0] });
     })
     .catch(next);
 };
