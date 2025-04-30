@@ -114,7 +114,7 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  test("200: responds with array of article objects, each of which should have the corrects properties sorted by name in asc", () => {
+  test("200: responds with array of article objects, each of which should have the corrects properties sorted by title in asc", () => {
     return request(app)
       .get("/api/articles?sort_by=title&order=asc")
       .expect(200)
@@ -136,7 +136,36 @@ describe("GET /api/articles", () => {
         expect(articles).toBeSortedBy("title");
       });
   });
-  test("400: Bad request when there is invalid query sort_by", () => {
+  test("200: responds with array of article objects, each of which should have the topic mitch", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+        expect(articles.length).toBe(12);
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            topic: "mitch",
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("200: responds with empty array of article objects, if there aren't any articles with given topic", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toEqual([]);
+      });
+  });
+  test("404: Bad request when there is invalid query sort_by", () => {
     return request(app)
       .get("/api/articles?sort_by=name&order=asc")
       .expect(404)
@@ -144,12 +173,28 @@ describe("GET /api/articles", () => {
         expect(msg).toBe("Invalid query for sorting");
       });
   });
-   test("400: Bad request when there is invalid query order", () => {
+  test("404: Bad request when there is invalid query order", () => {
     return request(app)
       .get("/api/articles?sort_by=title&order=1")
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Invalid query for order");
+      });
+  });
+  test("404: Bad request when there is invalid query order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=1")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid query for order");
+      });
+  });
+  test("404: Bad request when topic doesn't exist", () => {
+    return request(app)
+      .get("/api/articles?topic=dogs")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("topic is not found");
       });
   });
 });

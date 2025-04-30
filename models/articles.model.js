@@ -14,14 +14,13 @@ exports.selectArticleById = (articleId) => {
     });
 };
 
-exports.selectArticles = (sort_by = "created_at", order = "desc") => {
+exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
   let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url,
   COUNT(comments.comment_id)::int comment_count
   FROM articles
-  LEFT JOIN comments ON comments.article_id = articles.article_id
-  GROUP BY articles.article_id`;
+  LEFT JOIN comments ON comments.article_id = articles.article_id`;
 
-  const queryValues = [];
+    let queryValues = [];
 
   const allowedSortingQueries = [
     "article_id",
@@ -35,9 +34,15 @@ exports.selectArticles = (sort_by = "created_at", order = "desc") => {
   ];
   const allowedOrderQueries = ["ASC", "DESC"];
 
+  if (topic) {
+    queryValues.push(topic);
+    queryStr += ` WHERE topic = $1`;
+  }
+
+  queryStr += ` GROUP BY articles.article_id`;
+  
   if (sort_by && allowedSortingQueries.includes(sort_by)) {
-    queryValues.push(sort_by);
-    queryStr += ` ORDER BY ${queryValues[0]}`;
+    queryStr += ` ORDER BY ${sort_by}`;
   } else {
     return Promise.reject({ status: 404, msg: "Invalid query for sorting" });
   }
@@ -47,8 +52,8 @@ exports.selectArticles = (sort_by = "created_at", order = "desc") => {
   } else {
     return Promise.reject({ status: 404, msg: "Invalid query for order" });
   }
-
-  return db.query(queryStr).then((result) => {
+  
+  return db.query(queryStr, queryValues).then((result) => {
     return result.rows;
   });
 };
