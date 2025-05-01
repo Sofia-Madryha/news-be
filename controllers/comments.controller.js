@@ -10,9 +10,10 @@ const { selectUserByUsername } = require("../models/users.model");
 
 exports.getCommentsByArticleId = (req, res, next) => {
   const articleId = req.params.article_id;
+  const { limit, p } = req.query;
 
   const checkArticleId = selectArticleById(articleId);
-  const selectCommentsByArticle = selectCommentsByArticleId(articleId);
+  const selectCommentsByArticle = selectCommentsByArticleId(articleId, limit, p );
 
   Promise.all([selectCommentsByArticle, checkArticleId])
     .then((result) => {

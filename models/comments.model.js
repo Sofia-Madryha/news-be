@@ -18,15 +18,30 @@ exports.deleteCommentById = (commentId) => {
   return db.query(`DELETE FROM comments WHERE comment_id = $1`, [commentId]);
 };
 
-exports.selectCommentsByArticleId = (articleId) => {
-  return db
-    .query(
-      `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`,
-      [articleId]
-    )
-    .then((result) => {
-      return result.rows;
+exports.selectCommentsByArticleId = (articleId, limit = 10, p) => {
+  let queryStr = `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`;
+  const regex = /^\d+$/;
+
+  if (!regex.test(limit)) {
+    return Promise.reject({
+      status: 400,
+      msg: "limit should be a number",
     });
+  } else {
+    queryStr += ` LIMIT ${limit}`;
+  }
+
+  if (p && !regex.test(p)) {
+    return Promise.reject({
+      status: 400,
+      msg: "page should be a number",
+    });
+  } else if (p) {
+    queryStr += ` OFFSET (${p} - 1) * ${limit}`;
+  }
+  return db.query(queryStr, [articleId]).then((result) => {
+    return result.rows;
+  });
 };
 
 exports.insertCommentForArticle = (articleId, commentBody) => {
