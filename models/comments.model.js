@@ -53,3 +53,38 @@ exports.insertCommentForArticle = (articleId, commentBody) => {
       return rows[0];
     });
 };
+
+exports.patchCommentById = (commentId, commentBody) => {
+  const regex = /^-?\d+$/;
+
+  const { inc_votes } = commentBody;
+
+  const requiredKeys = ["inc_votes"];
+
+  const missingKeys = requiredKeys.filter(
+    (key) => !commentBody.hasOwnProperty(key)
+  );
+
+  if (missingKeys.length > 0) {
+    return Promise.reject({
+      status: 400,
+      msg: `Missing key '${missingKeys[0]}'`,
+    });
+  }
+
+  if (!regex.test(inc_votes)) {
+    return Promise.reject({
+      status: 400,
+      msg: "inc_votes should be a number",
+    });
+  }
+
+  return db
+    .query(
+      `UPDATE comments SET votes = votes + ${inc_votes} WHERE comment_id = $1 RETURNING *`,
+      [commentId]
+    )
+    .then((result) => {
+      return result.rows[0];
+    });
+};

@@ -7,7 +7,6 @@ app.use(express.json());
 
 app.use("/api", apiRouter);
 
-
 app.all("/*splat", (req, res) => {
   res.status(404).send({ msg: "Invalid url!" });
 });

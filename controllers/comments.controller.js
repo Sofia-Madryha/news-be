@@ -4,6 +4,7 @@ const {
   insertCommentForArticle,
   selectCommentById,
   deleteCommentById,
+  patchCommentById
 } = require("../models/comments.model");
 const { selectUserByUsername } = require("../models/users.model");
 
@@ -31,6 +32,20 @@ exports.postCommentForArticle = (req, res, next) => {
   Promise.all([insertComment, checkArticleId, checkUsername])
     .then((result) => {
       res.status(201).send({ comment: result[0] });
+    })
+    .catch(next);
+};
+
+exports.patchComment = (req, res, next) => {
+  const commentId = req.params.comment_id;
+  const commentBody = req.body;
+
+  const checkCommentId = selectCommentById(commentId);
+  const updateComment = patchCommentById(commentId, commentBody);
+
+  Promise.all([updateComment, checkCommentId])
+    .then((result) => {
+      res.status(200).send({ comment: result[0] });
     })
     .catch(next);
 };

@@ -445,6 +445,96 @@ describe("DELETE /api/comments/:comment_id", () => {
   });
 });
 
+describe("PATCH /api/comments/:comment_id", () => {
+  test("200: responds with updated comment incrementing votes", () => {
+    const changedComment = {
+      inc_votes: 1,
+    };
+
+    return request(app)
+      .patch("/api/comments/1")
+      .send(changedComment)
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment).toEqual({
+          comment_id: 1,
+          article_id: 9,
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 17,
+          author: "butter_bridge",
+          created_at: "2020-04-06T10:17:00.000Z",
+        });
+      });
+  });
+  test("200: responds with updated commnent decrementing votes", () => {
+    const changedComment = {
+      inc_votes: -1,
+    };
+
+    return request(app)
+      .patch("/api/comments/1")
+      .send(changedComment)
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment).toEqual({
+          comment_id: 1,
+          article_id: 9,
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 15,
+          author: "butter_bridge",
+          created_at: "2020-04-06T10:17:00.000Z",
+        });
+      });
+  });
+  test("400: Bad request when passed an invalid property value", () => {
+    const changedComment = {
+      inc_votes: "notANumber",
+    };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(changedComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("inc_votes should be a number");
+      });
+  });
+  test("400: Bad request when isn't passed property", () => {
+    const changedComment = {};
+
+    return request(app)
+      .patch("/api/comments/1/")
+      .send(changedComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Missing key 'inc_votes'");
+      });
+  });
+  test("400: Bad request when passed an invalid comment_id", () => {
+    const changedArticle = {
+      inc_votes: -1,
+    };
+    return request(app)
+      .patch("/api/comments/notNumber")
+      .send(changedArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  test("404: comment_id does not exist", () => {
+    const changedArticle = {
+      inc_votes: -1,
+    };
+    return request(app)
+      .patch("/api/comments/1000")
+      .send(changedArticle)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("comment id is not found");
+      });
+  });
+});
+
 describe("GET /api/users", () => {
   test("200: responds with array of user objects, each of which should have the corrects properties", () => {
     return request(app)
