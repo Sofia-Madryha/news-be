@@ -2,8 +2,10 @@ const {
   selectArticleById,
   selectArticles,
   updateArticleById,
+  insertArticle,
 } = require("../models/articles.model");
 const { selectTopicBySlug } = require("../models/topics.model");
+const { selectUserByUsername } = require("../models/users.model");
 
 exports.getArticleById = (req, res, next) => {
   const articleId = req.params.article_id;
@@ -45,6 +47,22 @@ exports.patchArticle = (req, res, next) => {
   Promise.all([updateArticle, checkArticleId])
     .then((result) => {
       res.status(200).send({ article: result[0] });
+    })
+    .catch(next);
+};
+
+exports.postArticle = (req, res, next) => {
+  const articleBody = req.body;
+  const { author } = articleBody;
+  const { topic } = articleBody;
+
+  const checkAuthor = selectUserByUsername(author);
+  const checkTopic = selectTopicBySlug(topic);
+  const createArticle = insertArticle(articleBody);
+
+  Promise.all([createArticle, checkAuthor, checkTopic])
+    .then((result) => {
+      res.status(201).send({ article: result[0] });
     })
     .catch(next);
 };

@@ -20,7 +20,7 @@ exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
   FROM articles
   LEFT JOIN comments ON comments.article_id = articles.article_id`;
 
-    let queryValues = [];
+  let queryValues = [];
 
   const allowedSortingQueries = [
     "article_id",
@@ -40,7 +40,7 @@ exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
   }
 
   queryStr += ` GROUP BY articles.article_id`;
-  
+
   if (sort_by && allowedSortingQueries.includes(sort_by)) {
     queryStr += ` ORDER BY ${sort_by}`;
   } else {
@@ -52,13 +52,11 @@ exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
   } else {
     return Promise.reject({ status: 404, msg: "Invalid query for order" });
   }
-  
+
   return db.query(queryStr, queryValues).then((result) => {
     return result.rows;
   });
 };
-
-
 
 exports.updateArticleById = (articleId, articleBody) => {
   const regex = /^-?\d+$/;
@@ -95,4 +93,28 @@ exports.updateArticleById = (articleId, articleBody) => {
     });
 };
 
+exports.insertArticle = (articleBody) => {
+  const { author, title, body, topic } = articleBody;
+  const article_img_url = articleBody.article_img_url || "";
+  const requiredKeys = ["author", "title", "body", "topic"];
 
+  const missingKeys = requiredKeys.filter(
+    (key) => !articleBody.hasOwnProperty(key)
+  );
+
+  if (missingKeys.length > 0) {
+    return Promise.reject({
+      status: 400,
+      msg: `Missing key '${missingKeys[0]}'`,
+    });
+  }
+
+  return db
+    .query(
+      `INSERT INTO articles(author, title, body, topic, article_img_url) VALUES ($1, $2, $3, $4, $5) RETURNING *, 0 AS comment_count`,
+      [author, title, body, topic, article_img_url]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};

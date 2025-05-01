@@ -578,3 +578,114 @@ describe("GET user by username", () => {
       });
   });
 });
+
+describe("POST /api/articles/", () => {
+  test("201: responds with created article", () => {
+    const newArticle = {
+      title: "B",
+      topic: "mitch",
+      author: "icellusedkars",
+      body: "Delicious",
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          title: "B",
+          topic: "mitch",
+          author: "icellusedkars",
+          body: "Delicious",
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          article_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          comment_count: expect.any(Number),
+        });
+      });
+  });
+  test("201: responds with created article when article_img_url is not provided", () => {
+    const newArticle = {
+      title: "B",
+      topic: "mitch",
+      author: "icellusedkars",
+      body: "Delicious",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          title: "B",
+          topic: "mitch",
+          author: "icellusedkars",
+          body: "Delicious",
+          article_img_url: "",
+          article_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          comment_count: expect.any(Number),
+        });
+      });
+  });
+  test("400: Bad request when isn't passed property", () => {
+    const newArticle = {
+      title: "B",
+      topic: "mitch",
+      author: "icellusedkars",
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Missing key 'body'");
+      });
+  });
+  test("404: topic does not exist", () => {
+    const newArticle = {
+      title: "B",
+      topic: "notTopic",
+      author: "icellusedkars",
+      body: "Delicious",
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("topic is not found");
+      });
+  });
+  test("404: username does not exist", () => {
+    const newArticle = {
+      title: "B",
+      topic: "mitch",
+      author: "notUser",
+      body: "Delicious",
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("user is not found");
+      });
+  });
+});
