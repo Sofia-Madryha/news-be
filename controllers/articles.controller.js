@@ -18,11 +18,11 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by, order, topic } = req.query;
+  const { sort_by, order, topic, limit, p } = req.query;
 
   const promiseArr = [];
 
-  const fetchArticles = selectArticles(sort_by, order, topic);
+  const fetchArticles = selectArticles(sort_by, order, topic, limit, p);
   promiseArr.push(fetchArticles);
 
   if (topic) {

@@ -14,7 +14,13 @@ exports.selectArticleById = (articleId) => {
     });
 };
 
-exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
+exports.selectArticles = (
+  sort_by = "created_at",
+  order = "desc",
+  topic,
+  limit = 10,
+  p
+) => {
   let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url,
   COUNT(comments.comment_id)::int comment_count
   FROM articles
@@ -51,6 +57,27 @@ exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
     queryStr += ` ${order}`;
   } else {
     return Promise.reject({ status: 404, msg: "Invalid query for order" });
+  }
+
+  const regex = /^\d+$/;
+
+  if (!regex.test(limit)) {
+    return Promise.reject({
+      status: 400,
+      msg: "limit should be a number",
+    });
+  } else {
+    queryStr += ` LIMIT ${limit}`;
+  }
+
+
+  if (p && !regex.test(p)) {
+    return Promise.reject({
+      status: 400,
+      msg: "page should be a number",
+    });
+  } else if (p) {
+    queryStr += ` OFFSET (${p} - 1) * ${limit}`;
   }
 
   return db.query(queryStr, queryValues).then((result) => {
