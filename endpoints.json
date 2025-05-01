@@ -29,7 +29,6 @@
   },
   "POST /api/articles": {
     "description": "serves a created article object",
-    "queries": [],
     "exampleResponse": {
       "article": [
         {
@@ -81,6 +80,7 @@
   },
   "GET /api/articles/:article_id/comments": {
     "description": "serves an array of all comments for article_id",
+    "queries": ["limit", "p"],
     "exampleResponse": {
       "comments": [
         {

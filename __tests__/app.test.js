@@ -219,14 +219,6 @@ describe("GET /api/articles", () => {
         expect(msg).toBe("Invalid query for order");
       });
   });
-  test("404: there is invalid query order", () => {
-    return request(app)
-      .get("/api/articles?sort_by=title&order=1")
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Invalid query for order");
-      });
-  });
   test("404: topic doesn't exist", () => {
     return request(app)
       .get("/api/articles?topic=dogs")
@@ -244,7 +236,7 @@ describe("GET comments by article id", () => {
       .expect(200)
       .then(({ body: { comments } }) => {
         expect(Array.isArray(comments)).toBe(true);
-        expect(comments.length).toBe(11);
+        expect(comments.length).toBe(10);
         comments.forEach((comment) => {
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
@@ -260,12 +252,44 @@ describe("GET comments by article id", () => {
         });
       });
   });
+   test("200: responds with array of paginated comments objects", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=10&p=1")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(10);
+      });
+  });
+  test("200: responds with array of paginated article objects, limit 5, page 2", () => {
+    return request(app)
+       .get("/api/articles/1/comments?limit=5&p=2")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(5);
+      });
+  });
   test("200: responds with empty array of comments when articles have no associated comments", () => {
     return request(app)
       .get("/api/articles/4/comments")
       .expect(200)
       .then(({ body: { comments } }) => {
         expect(comments).toEqual([]);
+      });
+  });
+   test("400: there is invalid query for limit", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=limit&p=2")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("limit should be a number");
+      });
+   });
+   test("400: there is invalid query for page", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=p")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("page should be a number");
       });
   });
   test("400: Bad request when passed an invalid article_id", () => {
