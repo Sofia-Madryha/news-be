@@ -96,7 +96,7 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(Array.isArray(articles)).toBe(true);
-        expect(articles.length).toBe(13);
+        expect(articles.length).toBe(10);
         articles.forEach((article) => {
           expect(article).toMatchObject({
             article_id: expect.any(Number),
@@ -120,7 +120,7 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(Array.isArray(articles)).toBe(true);
-        expect(articles.length).toBe(13);
+        expect(articles.length).toBe(10);
         articles.forEach((article) => {
           expect(article).toMatchObject({
             article_id: expect.any(Number),
@@ -142,7 +142,7 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(Array.isArray(articles)).toBe(true);
-        expect(articles.length).toBe(12);
+        expect(articles.length).toBe(10);
         articles.forEach((article) => {
           expect(article).toMatchObject({
             article_id: expect.any(Number),
@@ -157,6 +157,28 @@ describe("GET /api/articles", () => {
         });
       });
   });
+  test("200: responds with array of paginated article objects", () => {
+    return request(app)
+      .get("/api/articles?sort_by=article_id&order=asc&limit=10&p=1")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(10);
+        expect(articles).toBeSortedBy("article_id");
+        expect(articles[0].article_id).toBe(1);
+        expect(articles[9].article_id).toBe(10);
+      });
+  });
+  test("200: responds with array of paginated article objects, limit 5, page 2", () => {
+    return request(app)
+      .get("/api/articles?sort_by=article_id&order=asc&limit=5&p=2")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(5);
+        expect(articles).toBeSortedBy("article_id");
+        expect(articles[0].article_id).toBe(6);
+        expect(articles[4].article_id).toBe(10);
+      });
+  });
   test("200: responds with empty array of article objects, if there aren't any articles with given topic", () => {
     return request(app)
       .get("/api/articles?topic=paper")
@@ -165,7 +187,23 @@ describe("GET /api/articles", () => {
         expect(articles).toEqual([]);
       });
   });
-  test("404: Bad request when there is invalid query sort_by", () => {
+   test("400: there is invalid query for limit", () => {
+    return request(app)
+      .get("/api/articles?limit=limit")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("limit should be a number");
+      });
+   });
+   test("400: there is invalid query for page", () => {
+    return request(app)
+      .get("/api/articles?p=page")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("page should be a number");
+      });
+  });
+  test("404: there is invalid query sort_by", () => {
     return request(app)
       .get("/api/articles?sort_by=name&order=asc")
       .expect(404)
@@ -173,7 +211,7 @@ describe("GET /api/articles", () => {
         expect(msg).toBe("Invalid query for sorting");
       });
   });
-  test("404: Bad request when there is invalid query order", () => {
+  test("404: there is invalid query order", () => {
     return request(app)
       .get("/api/articles?sort_by=title&order=1")
       .expect(404)
@@ -181,7 +219,7 @@ describe("GET /api/articles", () => {
         expect(msg).toBe("Invalid query for order");
       });
   });
-  test("404: Bad request when there is invalid query order", () => {
+  test("404: there is invalid query order", () => {
     return request(app)
       .get("/api/articles?sort_by=title&order=1")
       .expect(404)
@@ -189,7 +227,7 @@ describe("GET /api/articles", () => {
         expect(msg).toBe("Invalid query for order");
       });
   });
-  test("404: Bad request when topic doesn't exist", () => {
+  test("404: topic doesn't exist", () => {
     return request(app)
       .get("/api/articles?topic=dogs")
       .expect(404)
