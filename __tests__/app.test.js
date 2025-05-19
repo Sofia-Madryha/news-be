@@ -52,7 +52,7 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET article by id", () => {
-  test("200: responds with object corresponding by article_id and with corect properties", () => {
+  test("200: responds with object corresponding by article_id and with correct properties", () => {
     return request(app)
       .get("/api/articles/1")
       .expect(200)
@@ -63,7 +63,7 @@ describe("GET article by id", () => {
           topic: "mitch",
           author: "butter_bridge",
           body: "I find this existence challenging",
-          created_at: "2020-07-09T18:11:00.000Z",
+          created_at: "2020-07-09T20:11:00.000Z",
           votes: 100,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
@@ -406,7 +406,7 @@ describe("PATCH /api/articles/:article_id", () => {
           topic: "mitch",
           author: "butter_bridge",
           body: "I find this existence challenging",
-          created_at: "2020-07-09T18:11:00.000Z",
+          created_at: "2020-07-09T20:11:00.000Z",
           votes: 101,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
@@ -429,7 +429,7 @@ describe("PATCH /api/articles/:article_id", () => {
           topic: "mitch",
           author: "butter_bridge",
           body: "I find this existence challenging",
-          created_at: "2020-07-09T18:11:00.000Z",
+          created_at: "2020-07-09T20:11:00.000Z",
           votes: 0,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
@@ -524,7 +524,7 @@ describe("PATCH /api/comments/:comment_id", () => {
           body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
           votes: 17,
           author: "butter_bridge",
-          created_at: "2020-04-06T10:17:00.000Z",
+          created_at: "2020-04-06T12:17:00.000Z",
         });
       });
   });
@@ -544,7 +544,7 @@ describe("PATCH /api/comments/:comment_id", () => {
           body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
           votes: 15,
           author: "butter_bridge",
-          created_at: "2020-04-06T10:17:00.000Z",
+          created_at: "2020-04-06T12:17:00.000Z",
         });
       });
   });
