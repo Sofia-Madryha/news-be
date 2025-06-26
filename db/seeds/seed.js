@@ -26,7 +26,8 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       return db.query(`CREATE TABLE users(
         username VARCHAR(500) PRIMARY KEY,
         name VARCHAR(500),
-        avatar_url VARCHAR(1000)) `);
+        avatar_url VARCHAR(1000),
+        liked_articles INTEGER[])`);
     })
     .then(() => {
       return db.query(`CREATE TABLE articles(
@@ -63,11 +64,18 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
     })
     .then(() => {
       const formattedUsersData = userData.map((item) => {
-        return [item.username, item.name, item.avatar_url];
+        return [
+          item.username,
+          item.name,
+          item.avatar_url,
+          item.likedArticles.length > 0
+            ? `{${item.likedArticles.join(",")}}`
+            : "{}",
+        ];
       });
 
       const insertUsersData = format(
-        `INSERT INTO users(username, name, avatar_url) 
+        `INSERT INTO users(username, name, avatar_url, liked_articles) 
         VALUES %L`,
         formattedUsersData
       );
@@ -97,7 +105,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
     })
     .then((articlesInfo) => {
       const createdRefArticles = createRefArticles(articlesInfo.rows);
-            
+
       const formattedCommentsData = commentData.map((comment) => {
         return [
           createdRefArticles[comment.article_title],

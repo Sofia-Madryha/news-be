@@ -135,12 +135,13 @@
         {
           "username": "butter_bridge",
           "name": "jonny",
-          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          "liked_articles": []
         }
       ]
     }
   },
-  "GET /api/users/:user_id": {
+  "GET /api/users/:username": {
     "description": "serves an ovject of user",
     "queries": [],
     "exampleResponse": {
@@ -148,7 +149,34 @@
         {
           "username": "butter_bridge",
           "name": "jonny",
-          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          "liked_articles": []
+        }
+      ]
+    }
+  },
+  "POST /api/users": {
+    "description": "serves a posted object of user",
+    "exampleResponse": {
+      "user": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          "liked_articles": []
+        }
+      ]
+    }
+  },
+  "PATCH /api/users": {
+    "description": "serves an updated object of user",
+    "exampleResponse": {
+      "user": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          "liked_articles": []
         }
       ]
     }

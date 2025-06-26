@@ -187,15 +187,15 @@ describe("GET /api/articles", () => {
         expect(articles).toEqual([]);
       });
   });
-   test("400: there is invalid query for limit", () => {
+  test("400: there is invalid query for limit", () => {
     return request(app)
       .get("/api/articles?limit=limit")
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("limit should be a number");
       });
-   });
-   test("400: there is invalid query for page", () => {
+  });
+  test("400: there is invalid query for page", () => {
     return request(app)
       .get("/api/articles?p=page")
       .expect(400)
@@ -252,7 +252,7 @@ describe("GET comments by article id", () => {
         });
       });
   });
-   test("200: responds with array of paginated comments objects", () => {
+  test("200: responds with array of paginated comments objects", () => {
     return request(app)
       .get("/api/articles/1/comments?limit=10&p=1")
       .expect(200)
@@ -262,7 +262,7 @@ describe("GET comments by article id", () => {
   });
   test("200: responds with array of paginated article objects, limit 5, page 2", () => {
     return request(app)
-       .get("/api/articles/1/comments?limit=5&p=2")
+      .get("/api/articles/1/comments?limit=5&p=2")
       .expect(200)
       .then(({ body: { comments } }) => {
         expect(comments.length).toBe(5);
@@ -276,15 +276,15 @@ describe("GET comments by article id", () => {
         expect(comments).toEqual([]);
       });
   });
-   test("400: there is invalid query for limit", () => {
+  test("400: there is invalid query for limit", () => {
     return request(app)
       .get("/api/articles/1/comments?limit=limit&p=2")
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("limit should be a number");
       });
-   });
-   test("400: there is invalid query for page", () => {
+  });
+  test("400: there is invalid query for page", () => {
     return request(app)
       .get("/api/articles/1/comments?p=p")
       .expect(400)
@@ -610,6 +610,7 @@ describe("GET /api/users", () => {
             username: expect.any(String),
             name: expect.any(String),
             avatar_url: expect.any(String),
+            liked_articles: expect.any(Array),
           });
         });
       });
@@ -627,6 +628,7 @@ describe("GET user by username", () => {
           name: "jonny",
           avatar_url:
             "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          liked_articles: [],
         });
       });
   });
@@ -637,6 +639,242 @@ describe("GET user by username", () => {
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("user is not found");
+      });
+  });
+});
+
+describe(" POST /api/users", () => {
+  test("201: Respond with the added user obj", () => {
+    const postObj = {
+      username: "new-user",
+      name: "user name",
+      avatar_url: "https://avatar.iran.liara.run/public/23",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(postObj)
+      .expect(201)
+      .then(({ body: { user } }) => {
+        expect(user).toMatchObject({
+          username: "new-user",
+          name: "user name",
+          avatar_url: "https://avatar.iran.liara.run/public/23",
+          liked_articles: null,
+        });
+      });
+  });
+
+  test("409: Respond with username already exists! msg when trying to add user with username already exist in database", () => {
+    const postObj = {
+      username: "butter_bridge",
+      name: "butter",
+      avatar_url: "https://avatar.iran.liara.run/public/23",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(postObj)
+      .expect(409)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("username already exists!");
+      });
+  });
+
+  test("400: Bad Request when trying to add user with empty object in post object", () => {
+    const postObj = {};
+
+    return request(app)
+      .post("/api/users")
+      .send(postObj)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("400: Bad Request when trying to add user without name in post object", () => {
+    const postObj = {
+      username: "test-user",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(postObj)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("400: Bad Request when trying to add user without username in post object", () => {
+    const postObj = { name: "user", avatar_url: "avatarUrl" };
+
+    return request(app)
+      .post("/api/users")
+      .send(postObj)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("400: Bad Request when trying to add user with incorrect datatype in post object", () => {
+    const postObj = {
+      username: [1, 2, 3],
+      name: "user",
+      avatar_url: 456,
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(postObj)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("400: Bad Request when trying to add user with empty strings in post object", () => {
+    const postObj = {
+      username: "",
+      name: "",
+      avatar_url: "",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(postObj)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe(" PATCH /api/users/:username", () => {
+  test("200: responds with an updated user object with updated name", () => {
+    const patchObj = { name: "new name" };
+
+    return request(app)
+      .patch("/api/users/butter_bridge")
+      .send(patchObj)
+      .expect(200)
+      .then(({ body: { user } }) => {
+        expect(user).toMatchObject({
+          username: "butter_bridge",
+          name: "new name",
+          avatar_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          liked_articles: [],
+        });
+      });
+  });
+
+  test("200: responds with an updated user object with updated liked articles", () => {
+    const patchObj = { liked_articles: [1] };
+
+    return request(app)
+      .patch("/api/users/butter_bridge")
+      .send(patchObj)
+      .expect(200)
+      .then(({ body: { user } }) => {
+        expect(user).toMatchObject({
+          username: "butter_bridge",
+          name: "jonny",
+          avatar_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          liked_articles: [1],
+        });
+      });
+  });
+
+  test("200: responds with an updated user object with updated avatar_url", () => {
+    const patchObj = { avatar_url: "newUrl" };
+
+    return request(app)
+      .patch("/api/users/butter_bridge")
+      .send(patchObj)
+      .expect(200)
+      .then(({ body: { user } }) => {
+        expect(user).toMatchObject({
+          username: "butter_bridge",
+          name: "jonny",
+          avatar_url: "newUrl",
+          liked_articles: [],
+        });
+      });
+  });
+
+  test("404: user is not found", () => {
+    const patchObj = { avatar_url: "newUrl" };
+
+    return request(app)
+      .patch("/api/users/NotAUsername")
+      .send(patchObj)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("user is not found");
+      });
+  });
+
+  test("400: Bad Request when trying to update user with empty patch object", () => {
+    const patchObj = {};
+
+    return request(app)
+      .patch("/api/users/butter_bridge")
+      .send(patchObj)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("400: Bad Request when trying to update user with wrong datatype in patch object", () => {
+    const patchObj = { avatar_url: 123 };
+
+    return request(app)
+      .patch("/api/users/butter_bridge")
+      .send(patchObj)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("400: Bad Request when trying to update user with wrong datatype in patch object", () => {
+    const patchObj = { liked_articles: "string" };
+
+    return request(app)
+      .patch("/api/users/butter_bridge")
+      .send(patchObj)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+
+  test("400: Bad Request when trying to update user with wrong datatype liked articles in patch object", () => {
+    const patchObj = { liked_articles: ["string", "1"] };
+
+    return request(app)
+      .patch("/api/users/butter_bridge")
+      .send(patchObj)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("liked_articles must be an array of integers");
+      });
+  });
+
+  test("400: Bad Request when trying to update user with empty string in patch object", () => {
+    const patchObj = { name: " " };
+
+    return request(app)
+      .patch("/api/users/butter_bridge")
+      .send(patchObj)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
       });
   });
 });

@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require("cors")
+const cors = require("cors");
 
 const apiRouter = require("./routers/api-router");
 
@@ -16,7 +16,11 @@ app.all("/*splat", (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-
+  if (err.code === "23505" || err.code === "23502") {
+    if (err.constraint === "users_pkey") {
+      res.status(409).send({ msg: "username already exists!" });
+    }
+  }
   if (err.code === "22P02") {
     res.status(400).send({ msg: "Bad request" });
   } else {
@@ -32,9 +36,7 @@ app.use((err, req, res, next) => {
   }
 });
 
-app.use((err, req, res, next) => {
-  console.log(err);
-  
+app.use((err, req, res, next) => {  
   res.status(500).send({ msg: "Internal server error !" });
 });
 
