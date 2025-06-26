@@ -27,7 +27,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         username VARCHAR(500) PRIMARY KEY,
         name VARCHAR(500),
         avatar_url VARCHAR(1000),
-        liked_articles INTEGER[])`);
+        liked_articles INTEGER[] DEFAULT '{}')`);
     })
     .then(() => {
       return db.query(`CREATE TABLE articles(
