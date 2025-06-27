@@ -247,7 +247,7 @@ describe("GET comments by article id", () => {
             article_id: 1,
           });
         });
-        expect(comments).toBeSortedBy("created_at");
+        expect(comments).toBeSortedBy("created_at", { descending: true });
       });
   });
   test("200: responds with array of paginated comments objects", () => {
