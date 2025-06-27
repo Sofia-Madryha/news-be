@@ -247,9 +247,7 @@ describe("GET comments by article id", () => {
             article_id: 1,
           });
         });
-        expect(comments).toBeSortedBy("created_at", {
-          descending: true,
-        });
+        expect(comments).toBeSortedBy("created_at");
       });
   });
   test("200: responds with array of paginated comments objects", () => {
@@ -660,7 +658,7 @@ describe(" POST /api/users", () => {
           username: "new-user",
           name: "user name",
           avatar_url: "https://avatar.iran.liara.run/public/23",
-          liked_articles: null,
+          liked_articles: [],
         });
       });
   });

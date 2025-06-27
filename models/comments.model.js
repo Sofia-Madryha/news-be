@@ -19,7 +19,7 @@ exports.deleteCommentById = (commentId) => {
 };
 
 exports.selectCommentsByArticleId = (articleId, limit = 10, p) => {
-  let queryStr = `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`;
+  let queryStr = `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at ASC`;
   const regex = /^\d+$/;
 
   if (!regex.test(limit)) {
